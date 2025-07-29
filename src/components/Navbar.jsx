@@ -51,8 +51,14 @@ const Navbar = () => {
     >
       {/* Left: Logo */}
       <div className="flex items-center gap-2">
-        <img src="/logo.svg" alt="Logo" className="h-5 w-auto" />
-        <span className="text-base font-semibold tracking-wide">CryptoStand</span>
+        <a href="/">
+    
+  <img
+      src="./images/logo.png"
+      alt="AstroVisionTrade Logo"
+      className="h-12 w-auto object-contain"
+    />
+</a>
       </div>
 
       {/* Toggle button for mobile */}
@@ -86,10 +92,10 @@ const Navbar = () => {
 
       {/* Right: Auth Buttons + Globe with dropdown */}
       <div className="hidden lg:flex items-center gap-3 relative" ref={dropdownRef}>
-        <button className="px-3 py-1 border border-gray-300 rounded hover:border-white hover:text-blue-300 text-sm">
+        <button className="px-3 py-1 border border-gray-500 rounded hover:border-white hover:text-blue-300 text-sm">
           Log In
         </button>
-        <button className="px-3 py-1 bg-blue-500 text-white rounded font-medium hover:bg-blue-600 transition duration-200 text-sm">
+        <button className="px-3 py-1 bg-blue-500 text-white rounded font-medium hover:bg-blue-950 transition duration-200 text-sm">
           Sign Up
         </button>
 

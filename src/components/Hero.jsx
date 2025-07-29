@@ -27,7 +27,7 @@ const Hero = () => {
         {/* Right: App Preview */}
         <div className="flex-1 flex justify-center">
           <img
-            src="/mockup-phone.png"
+            src="/images/google_review.png"
             alt="Crypto App Preview"
             className="w-64 lg:w-80 xl:w-96 h-auto drop-shadow-xl"
           />
