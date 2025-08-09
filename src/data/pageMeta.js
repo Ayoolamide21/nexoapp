@@ -9,6 +9,10 @@ export const pageMeta = {
     title: "About | Nexo Admin",
     description: "Learn more about our platform.",
   },
+  contact: {
+    title: "Support & Contact Us",
+    description: "Get in touch with our support team.",
+  },
   register: {
     title: "Sign Up | Become a Member",
     description: "Create a new account and get started.",

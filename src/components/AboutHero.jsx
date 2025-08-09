@@ -16,7 +16,8 @@ export default function AboutHero({ headline, description, ctaText, onCtaClick }
         <div className="md:w-1/3">
           <button onClick={onCtaClick}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-7 py-3 rounded-lg font-semibold transition">
-            {ctaText} <FaArrowRight />
+            {ctaText} 
+            <FaArrowRight />
           </button>
         </div>
       </div>

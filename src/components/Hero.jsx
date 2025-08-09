@@ -1,9 +1,9 @@
-import React from "react"
-import { FaArrowRight } from "react-icons/fa"
+import React from "react";
+import { FaArrowRight, FaBuilding, FaHeadset, FaWallet } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
-    
     <section className="w-full h-screen text-white font-inter flex items-center">
       <div className="flex flex-col-reverse lg:flex-row items-center justify-between w-full gap-16 px-8 xl:px-24">
         {/* Left: Content */}
@@ -15,9 +15,10 @@ const Hero = () => {
             Empowering Wealth Through Digital Assets
           </p>
 
-          <button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-7 py-3 rounded-lg font-semibold transition">
-            Sign up <FaArrowRight />
-          </button>
+          {/* ✅ Updated Sign Up button */}
+        <Link to="/signup" className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-7 py-3 rounded-lg font-semibold transition">
+            Sign Up <FaArrowRight />
+          </Link>
 
           <p className="text-sm text-gray-400 mt-4 max-w-lg xl:text-base">
             Unlock white-glove wealth solutions when you add <strong>$100,000+</strong>. Discover CryptoStand Private.
@@ -34,8 +35,7 @@ const Hero = () => {
         </div>
       </div>
     </section>
-    
-  )
-}
+  );
+};
 
-export default Hero
+export default Hero;
