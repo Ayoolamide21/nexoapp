@@ -1,18 +1,36 @@
 import React from "react";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FeatureHighlights from "../components/FeatureHighlights";
 import HeroSlider from "../components/HeroSlider";
+import PlansList from "../components/PlansList";
+
 
 import { FaCheck, FaLock, FaChartLine, FaMoneyBillWave, FaSyncAlt, FaBullseye, FaBriefcase} from "react-icons/fa";
 
 export default function Personal() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const hash = location.hash;
+    if (hash) {
+      setTimeout(() => {
+        const element = document.querySelector(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  }, [location]);
+
   return (
     <>
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-700 to-blue-500 text-white text-center py-16 px-4">
+      <section id="flexible" className="bg-gradient-to-r from-blue-700 to-blue-500 text-white text-center py-16 px-4">
         <h1 className="text-4xl font-bold mb-4 text-white">Grow & Manage Your Crypto Portfolio</h1>
         <p className="text-lg text-white-600 max-w-2xl mx-auto">
           Use flexible and fixed options to earn, invest, or access liquidity — all in one place.
@@ -31,7 +49,7 @@ export default function Personal() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
             {/* Card: Flexible Savings */}
-            <div id="flexible" className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
               <h3 className="text-xl font-semibold mb-2">Flexible Savings</h3>
               <p className="text-sm text-gray-600 mb-3">
                 Let your idle crypto work for you with daily payouts and full access anytime.
@@ -53,7 +71,8 @@ export default function Personal() {
             </div>
 
             {/* Card: Fixed-Term Savings */}
-            <div id="fixed-term" className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+          <section id="fixed-term">
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
               <h3 className="text-xl font-semibold mb-2">Fixed-Term Savings</h3>
               <p className="text-sm text-gray-600 mb-3">
                 Lock assets to earn higher returns. Choose durations from 7 days to 12 months.
@@ -73,9 +92,10 @@ export default function Personal() {
   </li>
               </ul>
             </div>
-
+</section>
             {/* Card: Dual Investment */}
-            <div id="dual-investment" className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+      <section id="dual-investment">
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
               <h3 className="text-xl font-semibold mb-2">Dual Investment</h3>
               <p className="text-sm text-gray-600 mb-3">
                 Set buy/sell targets and earn high yield — even if the market moves sideways.
@@ -95,12 +115,12 @@ export default function Personal() {
   </li>
               </ul>
             </div>
-
+</section>
           </div>
         </section>
 
         {/* Manage Your Assets */}
-        <section id="manage-assets" className="mt-16">
+        <section id="plans" className="mt-16">
           <h2 className="flex items-center text-3xl font-bold mb-10 gap-3">
   <FaBriefcase className="text-blue-500" />
   Manage Your Assets
@@ -116,7 +136,7 @@ export default function Personal() {
             </div>
 
             {/* Card: Credit Line */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <div id="credit-line" className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
               <h3 className="text-xl font-semibold mb-2">Credit Line</h3>
               <p className="text-sm text-gray-600">
                 Borrow instantly without selling your crypto. Use your holdings as collateral.
@@ -124,7 +144,7 @@ export default function Personal() {
             </div>
 
             {/* Card: Futures */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+            <div id="futures" className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
               <h3 className="text-xl font-semibold mb-2">Futures</h3>
               <p className="text-sm text-gray-600">
                 Trade perpetual contracts and profit in both bullish and bearish markets.
@@ -133,6 +153,7 @@ export default function Personal() {
 
           </div>
         </section>
+        <PlansList />
       </main>
       <HeroSlider/>
 <FeatureHighlights/>

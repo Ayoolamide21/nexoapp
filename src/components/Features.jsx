@@ -27,11 +27,11 @@ export default function Features() {
 
   return (
     <section className="py-16 bg-white text-center">
-      <h3 className="text-2xl md:text-3xl font-bold mb-10">
+      <h3 className="text-2xl md:text-3xl font-bold mb-10"></h3>
       <h2 className="text-3xl md:text-4xl font-bold mb-8">
       Why Choose <span className="text-blue-600">AstroVisionTrade</span>?
     </h2>
-      </h3>
+      
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 px-4 max-w-6xl mx-auto">
         {features.map((f, idx) => (
           <div

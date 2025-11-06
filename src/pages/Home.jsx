@@ -17,7 +17,7 @@ function Home() {
           <Navbar />
           <Hero />
 
-          {/* 👇 Add this About Us section here */}
+          {/* Add this About Us section here */}
           <section className=" text-white py-20 px-4 md:px-12">
             <div className="max-w-7xl mx-auto relative">
               {/* Left Branches */}
@@ -71,7 +71,7 @@ function Home() {
               </div>
             </div>
           </section>
-          {/* 👆 End About Us section */}
+          {/* End About Us section */}
 <section className="bg-white py-20 px-4 md:px-16 text-gray-800">
   <div className="max-w-6xl mx-auto text-center">
    

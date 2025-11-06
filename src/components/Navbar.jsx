@@ -1,25 +1,34 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaGlobe, FaBars } from "react-icons/fa";
-import { Link, Links } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { fetchFrontSettings } from "/src/api/frontApi";
 
-const languages = [
-  { code: "en", label: "English" },
-  { code: "es", label: "Spanish" },
-  { code: "fr", label: "French" },
-];
+const updateFavicon = (faviconUrl) => {
+  const head = document.getElementsByTagName("head")[0];
+  
+  // Remove all existing favicon tags
+  const existingFavicons = head.querySelectorAll("link[rel*='icon']");
+  existingFavicons.forEach(icon => head.removeChild(icon));
 
-const currencies = [
-  { code: "USD", label: "USD $" },
-  { code: "EUR", label: "Euro €" },
-  { code: "JPY", label: "Yen ¥" },
-];
+  // Create and append new favicon
+  const link = document.createElement("link");
+  link.type = "image/x-icon";
+  link.rel = "shortcut icon";
+  link.href = faviconUrl;
+  head.appendChild(link);
+};
+
 
 const Navbar = () => {
+  const [currencies, setCurrencies] = useState([]);
+  const [selectedCurrency, setSelectedCurrency] = useState({ code: "USD", label: "USD $" });
+const [selectedLanguage, setSelectedLanguage] = useState({ code: 'en', label: 'English', direction: 'ltr' });
+const [languages, setLanguages] = useState([]);
+
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
-  const [selectedCurrency, setSelectedCurrency] = useState(currencies[0]);
+
   const [showCompanyMenu, setShowCompanyMenu] = useState(false);
   const [showMarketsMenu, setShowMarketsMenu] = useState(false);
   const [showPersonalMenu, setShowPersonalMenu] = useState(false);
@@ -32,6 +41,10 @@ const Navbar = () => {
   const [showBusinessMenu, setShowBusinessMenu] = useState(false);
 const businessRef = useRef(null);
 const businessMenuRef = useRef(null);
+const isBusinessActive = location.pathname.startsWith("/business");
+
+const [logoUrl, setLogoUrl] = useState("");
+const [siteName, setSiteName] = useState("");
 
 
   const [coins, setCoins] = useState([]);
@@ -54,22 +67,78 @@ const businessMenuRef = useRef(null);
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  useEffect(() => {
+  const loadFrontSettings = async () => {
+    try {
+      const data = await fetchFrontSettings();
+      if (data.logo) {
+              setLogoUrl(data.logo);
+            }
+      if (data.favicon) {
+  updateFavicon(data.favicon);
+    
+}
+ if (data.currency) {
+        setSelectedCurrency({
+          code: data.currency.code,
+          label: `${data.currency.code} ${data.currency.symbol}`
+        });
+}
+
+  if (data.sitename) {
+        setSiteName(data.sitename);
+      }
+      if (Array.isArray(data.available_currencies)) {
+        setCurrencies(data.available_currencies.map(cur => ({
+          code: cur.code,
+          label: `${cur.code} ${cur.symbol}`
+        })));
+      }
+      // Set selected language
+      if (data.language) {
+        setSelectedLanguage({
+          code: data.language.code,
+          label: data.language.label,
+          direction: data.language.direction,
+        });
+      }
+
+      // Set available languages
+      if (Array.isArray(data.available_languages)) {
+        setLanguages(data.available_languages.map(lang => ({
+          code: lang.code,
+          label: lang.label, 
+          direction: lang.direction,
+        })));
+      }
+    } catch {
+       // silently ignore errors
+    }
+  };
+
+  loadFrontSettings();
+}, []);
+
 
   useEffect(() => {
     fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,binancecoin,tether")
       .then((res) => res.json())
       .then((data) => setCoins(data))
-      .catch((err) => console.error(err));
   }, []);
 
   return (
     <nav className={`sticky top-0 z-50 w-full px-6 lg:px-12 py-3 flex items-center justify-between transition duration-300 font-inter text-white ${scrolled ? "bg-black/50 backdrop-blur-lg shadow-md" : "bg-black/20 backdrop-blur-sm"}`}>
-      {/* Logo */}
+     
+    {/* Logo */}
       <div className="flex items-center gap-2">
-        <a href="/">
-          <img src="/images/logo.png" alt="AstroVisionTrade Logo" className="h-10 w-auto object-contain" />
-        </a>
-      </div>
+  <NavLink to="/">
+  {logoUrl ? (
+    <img src={logoUrl} alt={`${siteName} logo`} className="h-10 w-auto object-contain" />
+    ) : (
+          <span className="text-lg font-bold">{siteName}</span> 
+        )}
+  </NavLink>
+</div>
 
       {/* Mobile Toggle */}
       <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden">
@@ -93,8 +162,12 @@ const businessMenuRef = useRef(null);
       }
     }, 100);
   }}
->
+>         <NavLink to="/personal#" className={({ isActive }) => isActive? "bg-blue-100 p-3 rounded-lg text-blue-400" 
+            : "hover:text-blue-400 cursor-pointer"
+        }>
           <span className="hover:text-blue-400 cursor-pointer">Personal</span>
+        </NavLink>
+          
           {showPersonalMenu && (
             <div
       ref={personalMenuRef}
@@ -115,28 +188,46 @@ const businessMenuRef = useRef(null);
       <h4 className="font-semibold text-sm mb-3">Grow your savings</h4>
       <ul className="space-y-3 text-sm">
         <li>
-          <Link to="/personal#flexible" className="font-medium text-blue-600 hover:underline">
+          <NavLink to="/personal#flexible" className={({ isActive }) =>
+          isActive
+            ? "font-medium text-blue-500" 
+            : "font-medium hover:text-blue-400"
+        }
+      >
             Flexible Savings
-          </Link>
           <p className="text-xs text-gray-500">
             Earn daily rewards on your idle funds — withdraw anytime with zero lock-in.
           </p>
+          </NavLink>
+          
         </li>
         <li>
-          <Link to="/personal#fixed-term" className="font-medium text-blue-600 hover:underline">
+          <NavLink to="/personal#flexible" className={({ isActive }) =>
+          isActive
+            ? "font-medium text-blue-500" 
+            : "font-medium hover:text-blue-400"
+        }
+      >
             Fixed-term Savings
-          </Link>
           <p className="text-xs text-gray-500">
             Lock in higher returns by committing assets for set periods, up to 12 months.
           </p>
+          </NavLink>
+          
         </li>
         <li>
-          <Link to="/personal#dual-investment" className="font-medium text-blue-600 hover:underline">
+          <NavLink to="/personal#flexible" className={({ isActive }) =>
+          isActive
+            ? "font-medium text-blue-500" 
+            : "font-medium hover:text-blue-400"
+        }
+      >
             Dual Investment
-          </Link>
           <p className="text-xs text-gray-500">
             Maximize yields while setting buy-low and sell-high orders — earn regardless of market direction.
           </p>
+          </NavLink>
+          
         </li>
       </ul>
     </div>
@@ -145,21 +236,40 @@ const businessMenuRef = useRef(null);
                 <h4 className="font-semibold text-sm mb-3">Manage your assets</h4>
                 <ul className="space-y-3 text-sm">
                   <li>
-                  <Link to="/personal#manage-assets" className="font-medium text-blue-600 hover:underline">
+                  <NavLink to="/personal#plans" className={({ isActive }) =>
+          isActive
+            ? "font-medium text-blue-500"
+            : "font-medium hover:text-blue-400"
+        }
+      >
                     <p className="font-medium">Invest</p>
-                     </Link>
                      <p className="text-xs text-gray-500">Trade over 5 digital assets instantly with competitive rates.</p>
-                 </li>
+                 </NavLink>
+                  </li>
                   
                   
                   <li>
+                  <NavLink to="/personal#credit-line" className={({ isActive }) =>
+          isActive
+            ? "font-medium text-blue-500" 
+            : "font-medium hover:text-blue-400"
+        }
+      >
                     <p className="font-medium">Credit Line</p>
                     <p className="text-xs text-gray-500">Borrow funds without selling your digital assets.</p>
-                  </li>
+                 </NavLink>
+                     </li>
                   <li>
-                    <p className="font-medium">Futures</p>
+                  <NavLink to="/personal#futures" className={({ isActive }) =>
+          isActive
+            ? "font-medium text-blue-500" 
+            : "font-medium hover:text-blue-400"
+        }
+      >
+                     <p className="font-medium">Futures</p>
                     <p className="text-xs text-gray-500">Trade perpetual contracts to profit from both rising and falling markets.</p>
-                  </li>
+                  </NavLink>
+                   </li>
                 </ul>
               </div>
 
@@ -170,18 +280,22 @@ const businessMenuRef = useRef(null);
                   <p className="font-medium">AstroCard</p>
                   <p className="text-xs text-gray-500">Coming Soon.</p>
                 </div>
-                <Link to="/plans" className="bg-gray-100 p-3 rounded-lg hover:bg-blue-50">
-                <div className="bg-gray-100 p-3 rounded-lg hover:bg-blue-50">
-                  <h5 className="font-semibold text-xs mb-1">AstroVision Prime</h5>
-                  <p className="text-xs">For $100k+ investors — enjoy personal advisors, exclusive pools, and co-investment deals.</p>
-                </div>
-                </Link>
-                <Link to="/plans" className="bg-gray-100 p-3 rounded-lg hover:bg-blue-50">
-                  <div className="bg-gray-100 p-3 rounded-lg hover:bg-blue-50">
-                  <h5 className="font-semibold text-xs mb-1">AstroPerks Loans</h5>
-                  <p className="text-xs">Unlock low-interest credit lines based on your portfolio — no credit check required.</p>
-                </div>
-                </Link>
+        <NavLink to="/plans" className={({ isActive }) => isActive? "bg-blue-200 p-3 rounded-lg" 
+            : "hover:bg-blue-50 bg-gray-100 p-3 rounded-lg"
+        }
+      >
+      <h5 className="font-semibold text-xs mb-1">AstroVision Prime</h5>
+      <p className="text-xs">For $100k+ investors — enjoy personal advisors, exclusive pools, and co-investment deals.</p>
+      </NavLink>
+
+      <NavLink to="/business/loans" className={({ isActive }) => isActive? "bg-blue-200 p-3 rounded-lg" 
+            : "hover:bg-blue-50 bg-gray-100 p-3 rounded-lg"
+        }
+      >
+      <h5 className="font-semibold text-xs mb-1">AstroPerks Loans</h5>
+      <p className="text-xs">Unlock low-interest credit lines based on your portfolio — no credit check required.</p>
+      </NavLink>
+     
                 
               </div>
             </div>
@@ -191,7 +305,7 @@ const businessMenuRef = useRef(null);
         {/* Business Menu */}
 <li
   className="relative"
-  ref={companyRef /* I'll create a new ref for business */}
+  ref={companyRef}
   onMouseEnter={() => setShowBusinessMenu(true)}
   onMouseLeave={() => {
     setTimeout(() => {
@@ -204,7 +318,15 @@ const businessMenuRef = useRef(null);
     }, 100);
   }}
 >
-  <span className="hover:text-blue-400 cursor-pointer">Business</span>
+  <NavLink to="#" className={
+        isBusinessActive
+          ? "bg-blue-100 p-3 rounded-lg text-blue-400"
+          : "hover:text-blue-400 cursor-pointer"
+      }
+    >
+    <span className="hover:text-blue-400 cursor-pointer">Business</span>
+  </NavLink>
+  
   {showBusinessMenu && (
     <div
       ref={businessMenuRef}
@@ -225,17 +347,29 @@ const businessMenuRef = useRef(null);
         <h4 className="font-semibold text-sm mb-3">Business Solutions</h4>
         <ul className="space-y-3 text-sm">
           <li>
-            <p className="font-medium">Corporate Savings</p>
-            <p className="text-xs text-gray-500">Maximize returns on your business funds with flexible options.</p>
+              <NavLink to="/business/corporate-savings" className={({ isActive }) => isActive? "font-medium text-blue-400" 
+            : "font-medium hover:text-blue-400"
+        }
+      >Corporate Savings
+              <p className="text-xs text-gray-500">Maximize returns on your business funds with flexible options.</p>
+              </NavLink>
           </li>
           <li>
+          <NavLink to="/business/payment-processing" className={({ isActive }) => isActive? "font-medium text-blue-400" 
+            : "font-medium hover:text-blue-400"
+        }>
             <p className="font-medium">Payment Processing</p>
             <p className="text-xs text-gray-500">Seamlessly accept digital payments globally.</p>
-          </li>
+          </NavLink>
+            </li>
           <li>
+          <NavLink to="/business/merchant-services" className={({ isActive }) => isActive? "font-medium text-blue-400" 
+            : "font-medium hover:text-blue-400"
+        }>
             <p className="font-medium">Merchant Services</p>
             <p className="text-xs text-gray-500">Tailored financial tools to help your business grow.</p>
-          </li>
+          </NavLink>
+            </li>
         </ul>
       </div>
 
@@ -244,17 +378,29 @@ const businessMenuRef = useRef(null);
         <h4 className="font-semibold text-sm mb-3">Manage Business Assets</h4>
         <ul className="space-y-3 text-sm">
           <li>
-            <p className="font-medium">Business Exchange</p>
+          <NavLink to="/business/exchange" className={({ isActive }) => isActive? "font-medium text-blue-400" 
+            : "font-medium hover:text-blue-400"
+        }>
+        <p className="font-medium">Business Exchange</p>
             <p className="text-xs text-gray-500">Trade assets with competitive rates and low fees.</p>
-          </li>
+          </NavLink>
+            </li>
           <li>
+          <NavLink to="/personal#credit-line" className={({ isActive }) => isActive? "font-medium text-blue-400" 
+            : "font-medium hover:text-blue-400"
+        }>
             <p className="font-medium">Credit Lines</p>
             <p className="text-xs text-gray-500">Access flexible credit solutions designed for enterprises.</p>
-          </li>
+          </NavLink>
+            </li>
           <li>
-            <p className="font-medium">Investment Portfolios</p>
+          <NavLink to="/business/portfolio" className={({ isActive }) => isActive? "font-medium text-blue-400" 
+            : "font-medium hover:text-blue-400"
+        }>
+           <p className="font-medium">Investment Portfolios</p>
             <p className="text-xs text-gray-500">Diversify and grow your business investments smartly.</p>
-          </li>
+         </NavLink>
+           </li>
         </ul>
       </div>
 
@@ -262,17 +408,21 @@ const businessMenuRef = useRef(null);
       <div className="flex flex-col gap-4">
         <div>
           <h4 className="font-semibold text-sm mb-3">Exclusive Programs</h4>
-          <p className="font-medium">AstroBusiness Prime</p>
+          <NavLink to="/plans" className={({ isActive }) => isActive? "font-medium text-blue-400" 
+            : "font-medium hover:text-blue-400"
+        }>
+        <p className="font-medium">AstroBusiness Prime</p>
           <p className="text-xs text-gray-500">For enterprises — enjoy personalized support and premium benefits.</p>
-        </div>
-        <Link to="/business-plans" className="bg-gray-100 p-3 rounded-lg hover:bg-blue-50">
+        </NavLink>
+          </div>
+        <NavLink to="/business/loans" className="bg-gray-100 p-3 rounded-lg hover:bg-blue-50">
           <h5 className="font-semibold text-xs mb-1">Business Loans</h5>
           <p className="text-xs">Access low-interest loans tailored for your company’s growth.</p>
-        </Link>
-        <Link to="/business-support" className="bg-gray-100 p-3 rounded-lg hover:bg-blue-50">
+        </NavLink>
+        <NavLink to="/business/support" className="bg-gray-100 p-3 rounded-lg hover:bg-blue-50">
           <h5 className="font-semibold text-xs mb-1">Dedicated Support</h5>
           <p className="text-xs">Get priority assistance from our business support team.</p>
-        </Link>
+        </NavLink>
       </div>
     </div>
   )}
@@ -351,31 +501,43 @@ const businessMenuRef = useRef(null);
               <div>
                 <h4 className="font-semibold text-sm mb-3">Get Started</h4>
                 <p className="text-xs mb-4">Buy BTC, ETH and start earning interest.</p>
-                <li><Link to="/signup" className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 text-sm"> Buy assets → </Link> </li>
+                <li><NavLink to="/signup" className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 text-sm"> Buy assets → </NavLink> </li>
               </div>
               <div>
                 <h4 className="font-semibold text-sm mb-3">Company</h4>
                 <ul className="space-y-2 text-sm">
-                  <li><Link to="/about" className="hover:text-blue-600">About</Link></li>
-                  <li><Link to="/support" className="hover:text-blue-600">Help Center</Link></li>
-                  <li><Link to="/careers" className="hover:text-blue-600">Careers</Link></li>
+                 
+        <NavLink to="/about" className={({ isActive }) => isActive? " text-blue-400" 
+            : "hover:text-blue-400 cursor-pointer"
+        }> About
+        </NavLink>
+                 
+                  <li><NavLink to="/help-center" className={({ isActive }) => isActive? " text-blue-400" 
+            : "hover:text-blue-400 cursor-pointer"
+        }>
+        Help Center</NavLink></li>
+                  <li><NavLink to="/careers" className={({ isActive }) => isActive? " text-blue-400" 
+            : "hover:text-blue-400 cursor-pointer"
+        }>
+        Careers</NavLink></li>
                 </ul>
               </div>
               <div className="flex flex-col gap-3">
-                <div className="bg-gray-100 p-3 rounded-lg hover:bg-blue-50" >
-                <Link to="/plans" className="font-semibold text-xs mb-1">
-                <h5 className="font-semibold text-xs">AstroVision Prime
-                </h5>
-                 <p className="text-xs">For $100k+ investors — enjoy personal advisors, exclusive pools, and co-investment deals.</p>
-                </Link>
-                </div>
+                <NavLink to="/plans" className={({ isActive }) => isActive? "bg-blue-200 p-3 rounded-lg" 
+            : "hover:bg-blue-50 bg-gray-100 p-3 rounded-lg"
+        }
+      >
+      <h5 className="font-semibold text-xs mb-1">AstroVision Prime</h5>
+      <p className="text-xs">For $100k+ investors — enjoy personal advisors, exclusive pools, and co-investment deals.</p>
+      </NavLink>
+      <NavLink to="/business/loans" className={({ isActive }) => isActive? "bg-blue-200 p-3 rounded-lg" 
+            : "hover:bg-blue-50 bg-gray-100 p-3 rounded-lg"
+        }
+      >
+      <h5 className="font-semibold text-xs mb-1">AstroPerks Loans</h5>
+      <p className="text-xs">Unlock low-interest credit lines based on your portfolio — no credit check required.</p>
+      </NavLink>
 
-                <div className="bg-gray-100 p-3 rounded-lg hover:bg-blue-50">
-                <Link to="/plans" className="font-semibold text-xs mb-1">
-                <h5 className="font-semibold text-xs">AstroPerks Loans</h5>
-                <p className="text-xs">Unlock low-interest credit lines based on your portfolio — no credit check required.</p>
-                </Link>
-                </div>
               </div>
             </div>
           )}
@@ -383,8 +545,8 @@ const businessMenuRef = useRef(null);
       </ul>
       {/* Right Side */}
       <div className="hidden lg:flex items-center gap-3 relative" ref={dropdownRef}>
-        <Link to="/login" className="px-3 py-1 border border-gray-500 rounded hover:border-white hover:text-blue-300 text-sm">Log In</Link>
-        <Link to="/signup" className="px-3 py-1 bg-blue-500 text-white rounded font-medium hover:bg-blue-700 transition text-sm">Sign Up</Link>
+        <NavLink to="/login" className="px-3 py-1 border border-blue-500 rounded hover:border-blue-900 text-sm">Log In</NavLink>
+        <NavLink to="/signup" className="px-3 py-1 bg-blue-500 text-white rounded font-medium hover:bg-blue-700 transition text-sm">Sign Up</NavLink>
         <div className="relative inline-block">
           <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex items-center gap-1 hover:text-blue-300 border border-transparent hover:border-white rounded px-2 py-1 text-sm">
             <FaGlobe className="h-4 w-4" />
@@ -397,7 +559,7 @@ const businessMenuRef = useRef(null);
                 {languages.map((lang) => (
                   <button key={lang.code} onClick={() => { setSelectedLanguage(lang); setDropdownOpen(false); }}
                     className={`flex items-center gap-2 w-full px-3 py-2 rounded hover:bg-blue-600 ${lang.code === selectedLanguage.code ? "bg-blue-700" : ""}`}>
-                    <img src={`/flags/${lang.code}.svg`} alt={lang.label} className="w-4 h-4" />
+<img src={`/images/flags/${lang.code}.svg`} alt={lang.label} className="w-4 h-4" />
                     {lang.label}
                   </button>
                 ))}
@@ -405,11 +567,12 @@ const businessMenuRef = useRef(null);
               <div className="flex-1 p-3">
                 <p className="text-xs uppercase font-semibold mb-2">Currency</p>
                 {currencies.map((cur) => (
-                  <button key={cur.code} onClick={() => { setSelectedCurrency(cur); setDropdownOpen(false); }}
-                    className={`block w-full text-left px-3 py-2 rounded hover:bg-blue-600 ${cur.code === selectedCurrency.code ? "bg-blue-700" : ""}`}>
-                    {cur.label}
-                  </button>
-                ))}
+  <button key={cur.code} onClick={() => { setSelectedCurrency(cur); setDropdownOpen(false); }}
+    className={`block w-full text-left px-3 py-2 rounded hover:bg-blue-600 ${cur.code === selectedCurrency.code ? "bg-blue-700" : ""}`}>
+    {cur.label}
+  </button>
+))}
+
               </div>
             </div>
           )}
@@ -429,9 +592,31 @@ const businessMenuRef = useRef(null);
       </button>
       {showPersonalMenu && (
         <ul className="mt-2 pl-4 space-y-2 text-sm">
-          <li><Link to="/personal#flexible" className="block hover:text-blue-400">Flexible Savings</Link></li>
-          <li><Link to="/personal#fixed-term" className="block hover:text-blue-400">Fixed-term Savings</Link></li>
-          <li><Link to="/personal#dual-investment" className="block hover:text-blue-400">Dual Investment</Link></li>
+          <li><NavLink to="/personal#flexible" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }
+      >Flexible Savings</NavLink></li>
+          <li><NavLink to="/personal#fixed-term" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>Fixed-term Savings</NavLink></li>
+          <li><NavLink to="/personal#dual-investment" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>Dual Investment</NavLink></li>
+          <li><NavLink to="/personal#plans" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>Invest</NavLink></li>
+          <li><NavLink to="/personal#credit-line" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>Credit Line</NavLink></li>
+          <li><NavLink to="/personal#futures" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>Futures</NavLink></li>
+          <li><NavLink to="/plans" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>AstroVision Prime</NavLink></li>
+          <li><NavLink to="/business/loans" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>AstroPerks Loans</NavLink></li>
         </ul>
       )}
     </div>
@@ -446,9 +631,27 @@ const businessMenuRef = useRef(null);
       </button>
       {showBusinessMenu && (
         <ul className="mt-2 pl-4 space-y-2 text-sm">
-          <li><Link to="/business" className="block hover:text-blue-400">Business Solutions</Link></li>
-          <li><Link to="/business-plans" className="block hover:text-blue-400">Business Loans</Link></li>
-          <li><Link to="/business-support" className="block hover:text-blue-400">Dedicated Support</Link></li>
+          <li><NavLink to="/business/corporate-savings" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>Corporate Savings</NavLink></li>
+          <li><NavLink to="/business/payment-processing" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>Payment Processing</NavLink></li>
+          <li><NavLink to="/business/merchant-services" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>Merchant Services</NavLink></li>
+          <li><NavLink to="/business/exchange" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>Business Exchange</NavLink></li>
+          <li><NavLink to="/business/prime" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>AstroBusiness Prime</NavLink></li>
+        <li><NavLink to="/business/loans" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>Business Loans</NavLink></li>
+        <li><NavLink to="/business/support" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>Dedicated Support</NavLink></li>
         </ul>
       )}
     </div>
@@ -462,14 +665,14 @@ const businessMenuRef = useRef(null);
         Markets {showMarketsMenu ? "▲" : "▼"}
       </button>
       {showMarketsMenu && (
-        <ul className="mt-2 pl-4 space-y-2 text-sm max-h-48 overflow-y-auto">
+        <ul className="mt-2 pl-4 space-y-2 text-sm">
           {coins.map((coin) => (
-            <li key={coin.id} className="flex items-center justify-between">
+            <li key={coin.id} className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <img src={coin.image} alt={coin.symbol} className="w-5 h-5 rounded-full" />
+                <img src={coin.image} alt={coin.symbol} className="w-5 h-5" />
                 <span>{coin.name}</span>
               </div>
-              <span>${coin.current_price.toLocaleString()}</span>
+              <span className="text-sm font-medium">${coin.current_price.toLocaleString()}</span>
             </li>
           ))}
         </ul>
@@ -486,30 +689,21 @@ const businessMenuRef = useRef(null);
       </button>
       {showCompanyMenu && (
         <ul className="mt-2 pl-4 space-y-2 text-sm">
-          <li><Link to="/about" className="block hover:text-blue-400">About</Link></li>
-          <li><Link to="/support" className="block hover:text-blue-400">Support</Link></li>
-          <li><Link to="/careers" className="block hover:text-blue-400">Careers</Link></li>
+          <li><NavLink to="/about" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>About</NavLink></li>
+          <li><NavLink to="/help-center" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>Help Center</NavLink></li>
+          <li><NavLink to="/careers" className={({ isActive }) => isActive? "block text-blue-400" 
+            : "hover:text-blue-400 block"
+        }>Careers</NavLink></li>
         </ul>
       )}
     </div>
-
-    {/* Auth Buttons */}
-    <div className="flex flex-col gap-2 mt-4">
-      <Link
-        to="/login"
-        className="block w-full text-center px-4 py-2 border border-gray-600 rounded hover:border-blue-400 hover:text-blue-400 transition"
-      >
-        Log In
-      </Link>
-      <Link
-        to="/signup"
-        className="block w-full text-center px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 transition text-white font-semibold"
-      >
-        Sign Up
-      </Link>
-    </div>
   </div>
 )}
+
 
     </nav>
   );

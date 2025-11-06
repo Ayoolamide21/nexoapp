@@ -5,6 +5,9 @@ export default {
   ],
   theme: {
     extend: {
+      colors: {
+      'dark-blue': '#0B0D1A',
+    },
   animation: {
     bubbleGradient: 'bubbleGradient 20s ease-in-out infinite',
   },

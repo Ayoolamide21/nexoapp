@@ -7,7 +7,6 @@ function CryptoTable() {
     fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,binancecoin,usd-coin')
       .then(res => res.json())
       .then(data => setCoins(data))
-      .catch(err => console.error(err));
   }, []);
 
   return (

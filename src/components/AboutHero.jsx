@@ -4,25 +4,43 @@ import { FaArrowRight, FaBuilding, FaHeadset, FaWallet } from "react-icons/fa";
 
 export default function AboutHero({ headline, description, ctaText, onCtaClick }) {
   return (
-    <section className="relative h-screen text-white overflow-hidden">
+    <section className="relative min-h-[600px] md:h-screen text-white overflow-hidden">
       <ParticleBackground />
-      <div className="absolute inset-0 bg-black/50 z-10"></div>
+    <div
+  className="absolute inset-0 z-10"
+  style={{
+    background: "linear-gradient(135deg, #2d085a 0%, #0b133a 100%)",
+    opacity: 0.6,
+  }}
+></div>
 
-      <div className="relative z-20 flex h-full px-6 items-center justify-between max-w-6xl mx-auto md:flex-row flex-col gap-12">
-        <div className="md:w-1/2">
-          <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">{headline}</h1>
-          <p className="text-lg md:text-xl text-gray-200 leading-relaxed">{description}</p>
+
+
+
+      <div className="relative z-20 flex flex-col md:flex-row h-full px-6 sm:px-8 md:px-12 items-center justify-center md:justify-between max-w-6xl mx-auto gap-10 md:gap-16">
+        {/* Text Section */}
+        <div className="w-full md:w-1/2 text-center md:text-left">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-snug mb-4">
+            {headline}
+          </h1>
+          <p className="text-base sm:text-lg md:text-xl text-gray-200 leading-relaxed">
+            {description}
+          </p>
         </div>
-        <div className="md:w-1/3">
-          <button onClick={onCtaClick}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-7 py-3 rounded-lg font-semibold transition">
-            {ctaText} 
-            <FaArrowRight />
+
+        {/* CTA Section */}
+        <div className="w-full md:w-1/3 flex justify-center md:justify-start">
+          <button
+            onClick={onCtaClick}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold transition text-sm sm:text-base"
+          >
+            {ctaText} <FaArrowRight />
           </button>
         </div>
       </div>
 
-      <div className="absolute bottom-8 w-full flex justify-center gap-12 text-gray-300 text-sm z-20">
+      {/* Stats Section */}
+      <div className="absolute bottom-6 md:bottom-8 w-full flex flex-col sm:flex-row justify-center items-center gap-6 md:gap-12 text-gray-300 text-sm md:text-base z-20">
         {[
           { icon: FaBuilding, label: "Operating\nsince 2021" },
           { icon: FaHeadset, label: "24/7\nClient Care" },

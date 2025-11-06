@@ -15,7 +15,7 @@ const Hero = () => {
             Empowering Wealth Through Digital Assets
           </p>
 
-          {/* ✅ Updated Sign Up button */}
+          {/* Updated Sign Up button */}
         <Link to="/signup" className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-7 py-3 rounded-lg font-semibold transition">
             Sign Up <FaArrowRight />
           </Link>
@@ -24,15 +24,14 @@ const Hero = () => {
             Unlock white-glove wealth solutions when you add <strong>$100,000+</strong>. Discover CryptoStand Private.
           </p>
         </div>
-
-        {/* Right: App Preview */}
-        <div className="flex-1 flex justify-center">
-          <img
-            src="/images/google_review.png"
-            alt="Crypto App Preview"
-            className="w-64 lg:w-80 xl:w-96 h-auto drop-shadow-xl"
-          />
-        </div>
+        {/* Right: App Preview with Play Button */}
+<div className="flex-1 flex justify-center">
+  <video
+    src="/videos/astro_1.mp4"
+    controls
+    className="w-72 lg:w-[22rem] xl:w-[28rem] h-auto drop-shadow-xl rounded-lg"
+  />
+</div>
       </div>
     </section>
   );

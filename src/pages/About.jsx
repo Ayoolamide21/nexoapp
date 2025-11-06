@@ -3,10 +3,11 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import FeatureHighlights from '../components/FeatureHighlights';
 import AboutHero from '../components/AboutHero';
+import { useSettings } from '../context/useSettings';
 import Footer from '../components/Footer';
 import HeroSlider from '../components/HeroSlider';
+import { useNavigate } from "react-router-dom";
 import {
-  FaBrain,
   FaRobot,
   FaNetworkWired,
   FaLayerGroup,
@@ -16,7 +17,6 @@ import {
   FaCogs,
   FaBolt,
   FaSyncAlt,
-  FaSearchDollar,
   FaGlobe,
   FaWater,
   FaRecycle,
@@ -26,6 +26,9 @@ import { SiChainlink } from "react-icons/si";
 
 
 export default function About() {
+const navigate = useNavigate();
+   const { settings } = useSettings();
+  const siteName = settings?.sitename || "Our Platform";
   const features = [
     { icon: <FaRobot />, label: 'Automated & AI‑driven trading' },
     { icon: <FaLock />, label: 'DeFi & Proof‑of‑Stake staking' },
@@ -40,10 +43,10 @@ export default function About() {
       <main>
         <Navbar />
         <AboutHero
-          headline="About AstroVisionTrade"
+          headline={`About ${siteName}`}
           description="We are a next‑generation crypto investment firm focused on democratizing digital wealth creation. From institutional staking to automated trading, we're building a decentralized financial future for all."
           ctaText="Sign up"
-          onCtaClick={() => console.log('signup clicked')}
+          onCtaClick={() => navigate("/signup")}
         />
 
         {/* Main page content */}
@@ -54,7 +57,7 @@ export default function About() {
               Who We Are
             </h2>
             <p className="leading-relaxed text-lg">
-              AstroVisionTrade is a next‑generation crypto investment firm with a mission to simplify digital wealth creation. We're purpose-built to democratize access to next-gen digital assets, providing cutting-edge trading, staking, and institutional infrastructure.
+              {`${siteName}`} is a next‑generation crypto investment firm with a mission to simplify digital wealth creation. We're purpose-built to democratize access to next-gen digital assets, providing cutting-edge trading, staking, and institutional infrastructure.
             </p>
             <p className="leading-relaxed text-lg">
               Founded by blockchain experts, traders, and financial strategists, our platform aims to make crypto profitable and accessible to everyone.
